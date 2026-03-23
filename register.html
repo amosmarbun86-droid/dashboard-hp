@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Device</title>
+</head>
+<body>
+
+<h2>Register Device Baru</h2>
+
+<input type="text" id="nama" placeholder="Nama Device"><br><br>
+<input type="text" id="lokasi" placeholder="Lokasi"><br><br>
+<button onclick="register()">Register</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
+  authDomain: "dashboard-hp-7f75d.firebaseapp.com",
+  projectId: "dashboard-hp-7f75d",
+  storageBucket: "dashboard-hp-7f75d.firebasestorage.app",
+  messagingSenderId: "169355062761",
+  appId: "1:169355062761:web:c7642018d8f3198cba2f78"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.register = async function(){
+    const nama = document.getElementById("nama").value;
+    const lokasi = document.getElementById("lokasi").value;
+
+    await addDoc(collection(db, "devices"), {
+        nama: nama,
+        status: "online",
+        battery: 100,
+        lokasi: lokasi,
+        last_update: new Date().toLocaleString()
+    });
+
+    alert("Device berhasil didaftarkan");
+}
+</script>
+
+</body>
+</html>
