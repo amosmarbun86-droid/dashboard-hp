@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Device</title>
+</head>
+<body>
+
+<h2>Dashboard Device</h2>
+<div id="data"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
+  authDomain: "dashboard-hp-7f75d.firebaseapp.com",
+  projectId: "dashboard-hp-7f75d",
+  storageBucket: "dashboard-hp-7f75d.firebasestorage.app",
+  messagingSenderId: "169355062761",
+  appId: "1:169355062761:web:c7642018d8f3198cba2f78"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function loadData(){
+    const querySnapshot = await getDocs(collection(db, "devices"));
+    let html = "";
+    querySnapshot.forEach((doc) => {
+        const d = doc.data();
+        html += `
+        <div style="border:1px solid black; margin:10px; padding:10px;">
+            <h3>${d.nama}</h3>
+            Status: ${d.status}<br>
+            Battery: ${d.battery}%<br>
+            Lokasi: ${d.lokasi}<br>
+            Update: ${d.last_update}
+        </div>
+        `;
+    });
+    document.getElementById("data").innerHTML = html;
+}
+
+loadData();
+</script>
+
+</body>
+</html>
