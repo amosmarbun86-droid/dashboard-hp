@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Device Online</title>
+    <title>Device</title>
 </head>
 <body>
 
-<h2>Device Online</h2>
 Device ID:
 <input type="text" id="device_id">
-<button onclick="start()">Start Device</button>
+<button onclick="start()">Start</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, updateDoc, getDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
   authDomain: "dashboard-hp-7f75d.firebaseapp.com",
-  projectId: "dashboard-hp-7f75d",
-  storageBucket: "dashboard-hp-7f75d.firebasestorage.app",
-  messagingSenderId: "169355062761",
-  appId: "1:169355062761:web:c7642018d8f3198cba2f78"
+  projectId: "dashboard-hp-7f75d"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -31,30 +27,33 @@ window.start = function(){
 
     setInterval(async () => {
 
-        // Update status device
         await updateDoc(doc(db, "devices", deviceId), {
             status: "online",
+            battery: Math.floor(Math.random()*40)+60,
             last_update: new Date().toLocaleString()
         });
 
-        // Baca command
+        // OFFLINE DETECTOR nanti dari dashboard
+
         const cmdDoc = await getDoc(doc(db, "commands", deviceId));
         const cmd = cmdDoc.data().command;
 
         if(cmd !== "none"){
             alert("Command: " + cmd);
 
-            // Reset command
+            await addDoc(collection(db, "logs"), {
+                device: deviceId,
+                activity: "Execute " + cmd,
+                time: new Date().toLocaleString()
+            });
+
             await updateDoc(doc(db, "commands", deviceId), {
                 command: "none"
             });
         }
 
     }, 5000);
-
-    alert("Device online");
 }
 </script>
-
 </body>
 </html>
