@@ -10,7 +10,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
@@ -27,19 +27,32 @@ const db = getFirestore(app);
 async function loadData(){
     const querySnapshot = await getDocs(collection(db, "devices"));
     let html = "";
-    querySnapshot.forEach((doc) => {
-        const d = doc.data();
+    querySnapshot.forEach((docu) => {
+        const d = docu.data();
+        const id = docu.id;
+
         html += `
         <div style="border:1px solid black; margin:10px; padding:10px;">
             <h3>${d.nama}</h3>
             Status: ${d.status}<br>
             Battery: ${d.battery}%<br>
             Lokasi: ${d.lokasi}<br>
-            Update: ${d.last_update}
+            Update: ${d.last_update}<br><br>
+
+            <button onclick="sendCommand('${id}','lock')">Lock</button>
+            <button onclick="sendCommand('${id}','alarm')">Alarm</button>
+            <button onclick="sendCommand('${id}','restart')">Restart</button>
         </div>
         `;
     });
     document.getElementById("data").innerHTML = html;
+}
+
+window.sendCommand = async function(deviceId, cmd){
+    await updateDoc(doc(db, "commands", deviceId), {
+        command: cmd
+    });
+    alert("Command terkirim: " + cmd);
 }
 
 loadData();
