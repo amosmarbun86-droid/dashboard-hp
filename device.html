@@ -1,14 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Device</title>
-</head>
-<body>
-
-Device ID:
-<input type="text" id="device_id">
-<button onclick="start()">Start</button>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, updateDoc, getDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -27,18 +16,19 @@ window.start = function(){
 
     setInterval(async () => {
 
+        // UPDATE STATUS DEVICE
         await updateDoc(doc(db, "devices", deviceId), {
             status: "online",
             battery: Math.floor(Math.random()*40)+60,
             last_update: new Date().toLocaleString()
         });
 
-        // OFFLINE DETECTOR nanti dari dashboard
+        // CEK COMMAND DARI DASHBOARD
+        const deviceDoc = await getDoc(doc(db, "devices", deviceId));
+        const data = deviceDoc.data();
+        const cmd = data.command;
 
-        const cmdDoc = await getDoc(doc(db, "commands", deviceId));
-        const cmd = cmdDoc.data().command;
-
-        if(cmd !== "none"){
+        if(cmd && cmd !== "-"){
             alert("Command: " + cmd);
 
             await addDoc(collection(db, "logs"), {
@@ -47,13 +37,12 @@ window.start = function(){
                 time: new Date().toLocaleString()
             });
 
-            await updateDoc(doc(db, "commands", deviceId), {
-                command: "none"
+            // RESET COMMAND
+            await updateDoc(doc(db, "devices", deviceId), {
+                command: "-"
             });
         }
 
     }, 5000);
 }
 </script>
-</body>
-</html>
