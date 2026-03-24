@@ -7,12 +7,12 @@
 
 <h2>Device Online</h2>
 Device ID:
-<input type="text" id="device_id" placeholder="device id">
+<input type="text" id="device_id">
 <button onclick="start()">Start Device</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
@@ -30,11 +30,26 @@ window.start = function(){
     const deviceId = document.getElementById("device_id").value;
 
     setInterval(async () => {
+
+        // Update status device
         await updateDoc(doc(db, "devices", deviceId), {
             status: "online",
-            battery: Math.floor(Math.random() * 40) + 60,
             last_update: new Date().toLocaleString()
         });
+
+        // Baca command
+        const cmdDoc = await getDoc(doc(db, "commands", deviceId));
+        const cmd = cmdDoc.data().command;
+
+        if(cmd !== "none"){
+            alert("Command: " + cmd);
+
+            // Reset command
+            await updateDoc(doc(db, "commands", deviceId), {
+                command: "none"
+            });
+        }
+
     }, 5000);
 
     alert("Device online");
