@@ -17,9 +17,15 @@
             border-radius:10px;
         }
         button{
-            padding:5px 10px;
+            padding:6px 12px;
             margin:3px;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
         }
+        .lock{background:red;color:white;}
+        .alarm{background:orange;color:black;}
+        .restart{background:yellow;color:black;}
     </style>
 </head>
 <body>
@@ -29,27 +35,24 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
-  authDomain: "dashboard-hp-7f75d.firebaseapp.com",
-  projectId: "dashboard-hp-7f75d",
-  storageBucket: "dashboard-hp-7f75d.firebasestorage.app",
-  messagingSenderId: "169355062761",
-  appId: "1:169355062761:web:c7642018d8f3198cba2f78"
+  apiKey: "APIKEY_KAMU",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function loadData(){
-    const querySnapshot = await getDocs(collection(db, "devices"));
+// REALTIME LOAD DATA
+onSnapshot(collection(db, "devices"), (snapshot) => {
     let html = "";
 
-    querySnapshot.forEach((docu) => {
-        const d = docu.data();
-        const id = docu.id;
+    snapshot.forEach((docSnap) => {
+        const d = docSnap.data();
+        const id = docSnap.id;
 
         let statusColor = d.status === "online" ? "lime" : "red";
 
@@ -61,18 +64,19 @@ async function loadData(){
             Lokasi: ${d.lokasi}<br>
             Update: ${d.last_update}<br><br>
 
-            <button onclick="sendCommand('${id}','lock')">Lock</button>
-            <button onclick="sendCommand('${id}','alarm')">Alarm</button>
-            <button onclick="sendCommand('${id}','restart')">Restart</button>
+            <button class="lock" onclick="sendCommand('${id}','lock')">Lock</button>
+            <button class="alarm" onclick="sendCommand('${id}','alarm')">Alarm</button>
+            <button class="restart" onclick="sendCommand('${id}','restart')">Restart</button>
         </div>
         `;
     });
 
     document.getElementById("data").innerHTML = html;
-}
+});
 
+// SEND COMMAND
 window.sendCommand = async function(deviceId, cmd){
-    await updateDoc(doc(db, "commands", deviceId), {
+    await updateDoc(doc(db, "devices", deviceId), {
         command: cmd
     });
 
@@ -82,13 +86,8 @@ window.sendCommand = async function(deviceId, cmd){
         time: new Date().toLocaleString()
     });
 
-    alert("Command terkirim");
+    alert("Command terkirim: " + cmd);
 }
-
-// AUTO REFRESH REALTIME
-setInterval(loadData, 5000);
-loadData();
-
 </script>
 </body>
 </html>
