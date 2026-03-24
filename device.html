@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Device Online</title>
+</head>
+<body>
+
+<h2>Device Online</h2>
+Device ID:
+<input type="text" id="device_id" placeholder="device id">
+<button onclick="start()">Start Device</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDBkC-Axq-OJ1tqKWgS6iRyLHKrj_3F-yw",
+  authDomain: "dashboard-hp-7f75d.firebaseapp.com",
+  projectId: "dashboard-hp-7f75d",
+  storageBucket: "dashboard-hp-7f75d.firebasestorage.app",
+  messagingSenderId: "169355062761",
+  appId: "1:169355062761:web:c7642018d8f3198cba2f78"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.start = function(){
+    const deviceId = document.getElementById("device_id").value;
+
+    setInterval(async () => {
+        await updateDoc(doc(db, "devices", deviceId), {
+            status: "online",
+            battery: Math.floor(Math.random() * 40) + 60,
+            last_update: new Date().toLocaleString()
+        });
+    }, 5000);
+
+    alert("Device online");
+}
+</script>
+
+</body>
+</html>
